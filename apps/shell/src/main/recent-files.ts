@@ -63,10 +63,14 @@ export function normalizeRecentQuery(
 
 /** sidebar filter keys that stand for a family of extensions, not one exact ext */
 export const EXT_FAMILY: Record<string, readonly string[]> = {
+  // mirrors Home's FILTER_FAMILY and the search-side SEARCH_EXT_FAMILY
+  docx: ['docx', 'doc'],
   // delimited text belongs to the sheets family: Home's own FILTER_FAMILY and
   // the shell's open routing both treat .csv/.tsv as spreadsheets, so a
   // sidebar filtered on "xlsx" must page them in too (csv was missing here).
   xlsx: ['xlsx', 'xlsm', 'xls', 'csv', 'tsv'],
+  pptx: ['pptx', 'ppt'],
+  md: ['md', 'markdown'],
   html: ['html', 'htm'],
 }
 
@@ -83,11 +87,17 @@ export function pageRecentPaths(
   starredPaths: ReadonlySet<string>,
 ): RecentPage {
   const { offset, limit, ext } = normalizeRecentQuery(raw)
-  const all = statPathEntries(paths, starredPaths)
-  const filtered = ext ? all.filter((entry) => matchesExtFamily(entry.ext, ext)) : all
+  // The extension filter is pure string work (extname needs no stat), so filter
+  // and count first and stat only the page being returned — statting every
+  // path of a long recents list on every page turn blocked the main process
+  // once the list grew past a few hundred entries.
+  const filtered = ext
+    ? paths.filter((p) => matchesExtFamily(extname(p).slice(1).toLowerCase(), ext))
+    : paths
+  const page = limit === 0 ? [] : filtered.slice(offset, offset + limit)
   return {
-    entries: limit === 0 ? [] : filtered.slice(offset, offset + limit),
+    entries: statPathEntries(page, starredPaths),
     total: filtered.length,
-    totalAll: all.length,
+    totalAll: paths.length,
   }
 }

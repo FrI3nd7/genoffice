@@ -195,6 +195,8 @@ export const ru = {
   ribbonInnerBorders: 'Внутренние границы',
   ribbonTableInsideHBorders: 'Внутренняя горизонтальная граница',
   ribbonTableInsideVBorders: 'Внутренняя вертикальная граница',
+  ribbonTableDiagonalDownBorders: 'Диагональная граница сверху вниз',
+  ribbonTableDiagonalUpBorders: 'Диагональная граница снизу вверх',
   ribbonBorderColor: 'Цвет границы',
   ribbonBorderWidth: 'Толщина границы',
   ribbonPtValue: '{n} пт',
